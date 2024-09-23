@@ -1,0 +1,53 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+
+# Define the folder path where your Excel file is located
+folder_path = 'D:/GBS/Rice_2023/Speed/PSNR'
+
+# Specify the Excel file name
+file_name = 'correlation heatmap_30.xlsx'
+
+# Create the full file path by joining the folder path and file name
+file_path = os.path.join(folder_path, file_name)
+
+# Load your Excel dataset
+df = pd.read_excel(file_path)
+
+# Assuming your columns are named as follows:
+# Column 1: '0_m_s'
+# Column 2: '0.1_m_s'
+# Column 3: '0.2_m_s'
+# Column 4: '0.3_m_s'
+# Column 5: '0.4_m_s'
+# Column 6: '0.5_m_s'
+
+# Calculate correlation coefficients
+correlation_matrix = df.corr()
+
+# Create a heatmap to visualize correlations with adjusted font sizes
+plt.figure(figsize=(10, 8))
+
+# Adjust font size for annotations
+sns.heatmap(correlation_matrix, annot=True, cmap='YlGnBu', fmt='.2f', square=True, vmin=0, vmax=1,
+            annot_kws={"size": 12})
+
+# Add a title to the heatmap
+plt.title('Height_30cm', fontsize=16)
+
+# Get the current axes
+ax = plt.gca()
+
+# Get the colorbar
+cbar = ax.collections[0].colorbar
+
+# Set the font size for colorbar labels
+cbar.ax.tick_params(labelsize=14)
+
+# Increase font size for x-axis and y-axis labels
+ax.set_xticklabels(ax.get_xticklabels(), fontsize=16)
+ax.set_yticklabels(ax.get_yticklabels(), fontsize=16)
+
+# Show the plot
+plt.show()
