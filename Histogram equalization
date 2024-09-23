@@ -1,0 +1,42 @@
+import os
+import cv2 as cv
+import tifffile as tiff
+from matplotlib import pyplot as plt
+
+# Paths to input and output folders
+input_folder = 'D:/Drone project data 2023.03.07/Micasense/Plot_1_low_veg/trial_1/Band3'
+output_folder = 'D:/Drone project data 2023.03.07/Micasense/Plot_1_low_veg/trial_1/Band3/Hist2'
+
+# Create the output folder if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
+# Loop through all files in the input folder
+for filename in os.listdir(input_folder):
+    # Check if the file is a TIFF image
+    if filename.lower().endswith('.tif'):
+        # Read the TIFF image
+        img_path = os.path.join(input_folder, filename)
+        img = tiff.imread(img_path)
+
+        # Convert to grayscale if needed
+        if len(img.shape) > 2:
+            img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
+
+        # Apply adaptive histogram equalization
+        clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        equalized_img = clahe.apply(img)
+
+        # Save the equalized image to the output folder
+        output_path = os.path.join(output_folder, filename)
+        tiff.imsave(output_path, equalized_img)
+
+        print(f"Equalized image saved: {output_path}")
+
+print("Histogram equalization complete.")
+
+
+
+
+
+
