@@ -1,0 +1,61 @@
+import os
+import geopandas as gpd
+import rasterio
+from rasterio.mask import mask
+import pandas as pd
+import numpy as np
+
+# Replace with the path to your NDVI GeoTIFF file and the folder containing shapefiles
+ndvi_tiff_path = "D:/GBS/2022_Rice+Wheat/Rice/Drone/Vegetation Indices Image from Drone/NDVI_RICE/Rice day 1.tif"
+shapefiles_folder = "D:/GBS/Rice_2023/Shapefiles/SPLITTED SHAPEFILE/11.1"
+
+# Create an empty list to store DataFrames
+dfs = []
+
+# Open the NDVI GeoTIFF file to get its CRS
+with rasterio.open(ndvi_tiff_path) as src:
+    ndvi_crs = src.crs
+
+# Loop through all shapefiles in the folder
+for shapefile_name in os.listdir(shapefiles_folder):
+    if shapefile_name.endswith(".shp"):
+        shapefile_path = os.path.join(shapefiles_folder, shapefile_name)
+
+        # Read the shapefile
+        gdf = gpd.read_file(shapefile_path)
+
+        # Reproject the shapefile to the CRS of the raster image
+        gdf = gdf.to_crs(ndvi_crs)
+
+        # Open the NDVI GeoTIFF file
+        with rasterio.open(ndvi_tiff_path) as src:
+            # Extract the geometry of the reprojected shapefile
+            geoms = gdf.geometry
+
+            # Use the geometries to crop the NDVI raster
+            out_image, out_transform = mask(src, geoms, crop=True)
+            out_meta = src.meta.copy()
+
+        # Extract NDVI values
+        ndvi_values = out_image[0, :, :].flatten()
+
+        # Ensure the length of NDVI values matches the number of pixels
+        if len(ndvi_values) != out_image.size:
+            raise ValueError(f"Length mismatch in shapefile {shapefile_name}")
+
+        # Filter out invalid NDVI values (e.g., NoData)
+        valid_ndvi_values = ndvi_values[~np.isnan(ndvi_values) & (ndvi_values != src.nodatavals[0])]
+
+        # Calculate the average NDVI value
+        average_ndvi = valid_ndvi_values.mean()
+
+        # Create a DataFrame with the results
+        df = pd.DataFrame({'Shapefile': [shapefile_name], 'Average_NDVI': [average_ndvi]})
+        dfs.append(df)
+
+# Concatenate all DataFrames into one
+result_df = pd.concat(dfs, ignore_index=True)
+
+# Save the result DataFrame to an Excel file
+excel_output_path = "D:/GBS/2022_Rice+Wheat/Rice/Drone/Vegetation Indices Image from Drone/NDVI_RICE/average_ndvi_results_2.xlsx"
+result_df.to_excel(excel_output_path, index=False, engine='openpyxl')
