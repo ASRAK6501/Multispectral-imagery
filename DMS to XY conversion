@@ -1,0 +1,21 @@
+import pandas as pd
+import pyproj
+
+# Define the projection
+proj_latlon = pyproj.CRS("EPSG:4326")
+proj_xy = pyproj.CRS.from_string("+proj=tmerc +lat_0=38.0 +lon_0=127 +k=1.0 +x_0=200000.0 +y_0=600000.0 +ellps=GRS80 +units=m "
+                      "+no_defs")
+
+# Specify input and output file paths
+input_file_path = "C:/Users/user/Desktop/New folder/t.csv"
+output_file_path = "C:/Users/user/Desktop/New folder/xy.csv"
+
+# Load the data from the input file
+data = pd.read_csv(input_file_path)
+
+# Convert lon/lat to x/y
+transformer = pyproj.Transformer.from_crs(proj_latlon, proj_xy, always_xy=True)
+data['y'], data['x'] = transformer.transform(data.iloc[:, 2].values, data.iloc[:, 1].values)
+
+# Save the data to the output file
+data.to_csv(output_file_path, index=False)
