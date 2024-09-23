@@ -1,0 +1,28 @@
+import csv
+
+# Open the input file in read mode with the correct encoding
+with open('C:/Users/user/Desktop/Day_1_data_analysis/GPS/Field 2/trial 1/plot 1 trial 1.txt', 'r', encoding='iso-8859-1') as in_file:
+    # Open the output file in write mode with newline='' to avoid blank lines between rows
+    with open('C:/Users/user/Desktop/Day_1_data_analysis/GPS/Field 2/trial 1/new1.csv', 'w', newline='', encoding='utf-8') as out_file:
+        # Create a CSV writer object
+        writer = csv.writer(out_file)
+        # Write the column headers to the output file
+        writer.writerow(['time','lat', 'lng','alt'])
+
+        # Read each line of the input file and write it to the output file
+        for line in in_file:
+            # Strip any leading/trailing whitespace and split the line by commas
+            values = [v.strip() for v in line.split(',')]
+            if values[0].startswith('$GPGGA'):
+                # Compute the new latitude and longitude values using the provided formulas
+                x = float(values[2])
+                y = float(values[4])
+                p = x - 3500
+                q = y - 12700
+                lat = str(p / 60 + 35)
+                lng = str(q / 60 + 127)
+
+                # Select the altitude and time columns you want to keep
+                selected_columns = [values[1], lat, lng, values[11]]
+                # Write the selected columns to the output file as a row
+                writer.writerow(selected_columns)
