@@ -1,0 +1,25 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Data for Scaling Vis
+experiments = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11', 'E12', 'E13', 'E14', 'E15', 'E16']
+sunny = [0.017, 0.008, 0.009, 0.021, 0.009, 0.008, 0.1, 0.017, 0.02, 0.019, 0.016, 0.08, 0.017, 0.021, 0.02, 0.019]
+variable_illumination = [0.06, 0.01, 0.012, 0.06, 0.026, 0.02, 0.16, 0.026, 0.021, 0.04, 0.019, 0.108, 0.021, 0.06, 0.042, 0.024]
+overcast = [0.017, 0.01, 0.01, 0.022, 0.009, 0.008, 0.12, 0.021, 0.021, 0.037, 0.02, 0.101, 0.02, 0.037, 0.021, 0.026]
+
+# Stacked Bar Chart
+bar_width = 0.6
+index = np.arange(len(experiments))
+
+plt.bar(index, sunny, bar_width, label='Sunny', color='skyblue')
+plt.bar(index, variable_illumination, bar_width, bottom=sunny, label='Variable Illumination', color='orange')
+plt.bar(index, overcast, bar_width, bottom=np.array(sunny) + np.array(variable_illumination), label='Overcast', color='green')
+
+plt.xlabel('Experiments')
+plt.ylabel('Values')
+plt.title('Scaling Vis Data - Stacked Bar Chart')
+plt.xticks(index, experiments, rotation=45)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
