@@ -1,0 +1,62 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Define the function to apply CLAHE
+def apply_clahe(image, clip_limit=2.0, grid_size=(8, 8)):
+    # Convert the image to grayscale if it is a color image
+    if len(image.shape) == 3:
+        print("Converting image to grayscale")
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Create a CLAHE object with clip limit and grid size
+    clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=grid_size)
+    
+    # Apply CLAHE to the grayscale image
+    clahe_image = clahe.apply(image)
+    
+    return clahe_image
+
+# Define the function to plot pixel frequency distributions as bar charts
+def plot_histogram_comparison(original_image, clahe_image):
+    # Calculate histograms for the original and CLAHE images
+    hist_original = cv2.calcHist([original_image], [0], None, [256], [0, 256])
+    hist_clahe = cv2.calcHist([clahe_image], [0], None, [256], [0, 256])
+
+    # Normalize the histograms for comparison
+    hist_original = hist_original / hist_original.sum()
+    hist_clahe = hist_clahe / hist_clahe.sum()
+
+    # Create an array for pixel values (0 to 255)
+    bins = np.arange(256)
+
+    # Plot both histograms as bar charts
+    plt.figure(figsize=(10, 6))
+    plt.bar(bins, hist_original[:, 0], color='blue', alpha=0.5, label='Original Image', width=1.0)
+    plt.bar(bins, hist_clahe[:, 0], color='green', alpha=0.5, label='CLAHE Image', width=1.0)
+    
+    plt.title('Pixel Frequency Distribution (Before and After CLAHE)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.legend(loc='upper right')
+    plt.grid(True)
+    plt.show()
+
+# Set the folder path and file name
+folder_path = 'D:/GBS/2024_SHORT_EXPERIMENT_RDA/2024.04.18/Sorted_Data_2024.04.18_RDA/(4-5)Section_1/1'
+file_name = 'IMG_0090_1.tif'  # Replace with your image file name
+image_path = os.path.join(folder_path, file_name)
+
+# Load the image from the specified folder path
+original_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+# Check if the image is loaded correctly
+if original_image is None:
+    print("Error: Could not load image. Please check the file path.")
+else:
+    # Apply CLAHE to the image
+    clahe_image = apply_clahe(original_image)
+    
+    # Plot histograms of the original and CLAHE-processed images
+    plot_histogram_comparison(original_image, clahe_image)
